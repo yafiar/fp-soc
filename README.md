@@ -1,13 +1,8 @@
-# 🛡️ Reducing SOC False Alarms through Human-AI Collaboration
+# Reducing SOC False Alarms through Human-AI Collaboration
 
-> Final Project — Keamanan Informasi | Institut Teknologi Sepuluh Nopember  
-> Departemen Teknologi Informasi | Semester Genap 2024/2025
+## Deskripsi Proyek
 
----
-
-## 📋 Deskripsi Proyek
-
-Sistem ini mengimplementasikan **Human-AI Collaboration SOC** yang mengurangi false alarm pada Security Operations Center tanpa mengorbankan akurasi deteksi ancaman. Sistem mengintegrasikan Wazuh SIEM dengan model AI lokal (Random Forest + Isolation Forest) untuk mengklasifikasikan alert secara otomatis sebagai **True Positive (TP)** atau **False Positive (FP)**.
+Sistem ini mengimplementasikan Human-AI Collaboration SOC yang mengurangi false alarm pada Security Operations Center tanpa mengorbankan akurasi deteksi ancaman. Sistem mengintegrasikan Wazuh SIEM dengan model AI lokal (Random Forest + Isolation Forest) untuk mengklasifikasikan alert secara otomatis sebagai **True Positive (TP)** atau **False Positive (FP)**.
 
 ### Latar Belakang
 
@@ -22,46 +17,46 @@ Sistem berhasil mereduksi noise sebesar **33.1%** — dari 127 alert yang masuk,
 
 ---
 
-## 🏗️ Arsitektur Sistem
+## Arsitektur Sistem
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                     Azure Cloud (FP-SOC VM)                  │
+│                     Azure Cloud (FP-SOC VM)                 │
 │  ┌──────────────────────────────────────────────────────┐   │
-│  │              Wazuh Manager (All-in-One)               │   │
-│  │  ┌─────────────┐  ┌──────────────┐  ┌────────────┐  │   │
-│  │  │   Wazuh     │  │    Wazuh     │  │   Wazuh    │  │   │
-│  │  │   Indexer   │  │   Manager    │  │  Dashboard │  │   │
-│  │  │ (OpenSearch)│  │  (Analysis)  │  │  (Kibana)  │  │   │
-│  │  └─────────────┘  └──────────────┘  └────────────┘  │   │
+│  │              Wazuh Manager (All-in-One)              │   │
+│  │  ┌─────────────┐  ┌──────────────┐  ┌────────────┐   │   │
+│  │  │   Wazuh     │  │    Wazuh     │  │   Wazuh    │   │   │
+│  │  │   Indexer   │  │   Manager    │  │  Dashboard │   │   │
+│  │  │ (OpenSearch)│  │  (Analysis)  │  │  (Kibana)  │   │   │
+│  │  └─────────────┘  └──────────────┘  └────────────┘   │   │
 │  └──────────────────────────────────────────────────────┘   │
-│                            │                                  │
+│                            │                                │
 │  ┌─────────────────────────▼────────────────────────────┐   │
-│  │              AI False Positive Detector               │   │
-│  │                                                       │   │
+│  │              AI False Positive Detector              │   │
+│  │                                                      │   │
 │  │  alerts.json → Rule-based Labeler → Training Data    │   │
 │  │                      ↓                               │   │
 │  │         Random Forest + Isolation Forest             │   │
 │  │                      ↓                               │   │
 │  │     Live Monitor → FP suppress / TP tampil           │   │
 │  └──────────────────────────────────────────────────────┘   │
-│                            │                                  │
+│                            │                                │
 │  ┌─────────────────────────▼────────────────────────────┐   │
-│  │              Active Response (SOAR)                   │   │
-│  │         Auto-block IP berbahaya via iptables          │   │
+│  │              Active Response (SOAR)                  │   │
+│  │         Auto-block IP berbahaya via iptables         │   │
 │  └──────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────┘
           ▲                          ▲
           │ Wazuh Agent              │ Wazuh Agent
-┌─────────┴──────────┐    ┌─────────┴──────────┐
-│  nginx-webdeploy   │    │    yafi-ubuntu      │
-│  (Web Server VM)   │    │    (Attacker WSL)   │
-└────────────────────┘    └────────────────────┘
+┌─────────┴──────────┐     ┌─────────┴──────────┐
+│  nginx-webdeploy   │     │    yafi-ubuntu     │
+│  (Web Server VM)   │     │    (Attacker WSL)  │
+└────────────────────┘     └────────────────────┘
 ```
 
 ---
 
-## 🔧 Spesifikasi Sistem
+## Spesifikasi Sistem
 
 ### Infrastructure
 
@@ -84,7 +79,7 @@ Sistem berhasil mereduksi noise sebesar **33.1%** — dari 127 alert yang masuk,
 
 ---
 
-## 🤖 AI Integration
+## AI Integration
 
 ### Metodologi
 
@@ -131,21 +126,21 @@ Alert baru masuk
   Extract Features
        ↓
   ┌────────────────────────────────┐
-  │     Random Forest (supervised)  │
-  │   Trained dari labeled data     │
-  │   class_weight='balanced'       │
+  │    Random Forest (supervised)  │
+  │   Trained dari labeled data    │
+  │   class_weight='balanced'      │
   └────────────────┬───────────────┘
                    │
-  ┌────────────────▼───────────────┐
+  ┌────────────────▼────────────────┐
   │  Isolation Forest (unsupervised)│
   │   Anomaly detection             │
   │   contamination = 0.09          │
-  └────────────────┬───────────────┘
+  └────────────────┬────────────────┘
                    │
          ┌─────────▼──────────┐
-         │  Hybrid Voting      │
-         │  both-agree → high  │
-         │  rf-wins → medium   │
+         │  Hybrid Voting     │
+         │  both-agree → high │
+         │  rf-wins → medium  │
          └─────────┬──────────┘
                    │
          ┌─────────▼──────────┐
@@ -168,7 +163,6 @@ Alert baru masuk
 | Cross-val Precision | 1.000 ± 0.000 |
 | Cross-val Recall | 1.000 ± 0.000 |
 
-**Catatan:** Score sempurna disebabkan oleh desain sistem yang menggunakan rule-based labeler sebagai ground truth — model essentially menggeneralisasi aturan yang telah didefinisikan. Ini adalah *intended behavior* dari Human-AI collaboration: human expertise (SOC analyst) mendefinisikan kriteria, AI menggeneralisasi dan mengotomatisasi penerapannya.
 
 ### Hasil Deteksi Live
 
@@ -181,7 +175,7 @@ Alert baru masuk
 
 ---
 
-## 🚨 Attack Scenarios
+## Attack Scenarios
 
 ### Skenario 1: SSH Brute Force (T1110.001)
 
@@ -229,7 +223,7 @@ done
 
 ---
 
-## ⚡ Active Response (SOAR)
+## Active Response (SOAR)
 
 Wazuh Active Response dikonfigurasi untuk auto-block IP yang terdeteksi melakukan brute force:
 
@@ -255,7 +249,7 @@ Wazuh Active Response dikonfigurasi untuk auto-block IP yang terdeteksi melakuka
 
 ---
 
-## 📁 Struktur Repository
+## Struktur Repository
 
 ```
 fp-soc/
@@ -274,12 +268,11 @@ fp-soc/
 
 ---
 
-## 🚀 Cara Menjalankan
+## Cara Menjalankan
 
 ### Prerequisites
 
 ```bash
-# Install dependencies
 sudo pip3 install scikit-learn pandas numpy --break-system-packages
 ```
 
@@ -319,26 +312,9 @@ Timestamp            Rule   Lvl  Conf  Method       Agent              Descripti
 
 ---
 
-## 👥 Tim
-
-| Nama | NRP | Peran |
-|---|---|---|
-| [Nama 1] | [NRP] | Infrastructure & Wazuh Setup |
-| [Nama 2] | [NRP] | AI Model Development |
-| [Nama 3] | [NRP] | Attack Simulation |
-| [Nama 4] | [NRP] | Active Response & SOAR |
-| [Nama 5] | [NRP] | Documentation & Report |
-| [Nama 6] | [NRP] | Testing & Evaluation |
-
----
-
-## 📚 Referensi
+## Referensi
 
 - [Wazuh Documentation](https://documentation.wazuh.com/)
 - [MITRE ATT&CK Framework](https://attack.mitre.org/)
 - Scikit-learn: Random Forest & Isolation Forest
 - PCI DSS, GDPR, HIPAA compliance mappings via Wazuh rules
-
----
-
-*Institut Teknologi Sepuluh Nopember — Departemen Teknologi Informasi — 2025*
